@@ -1,6 +1,6 @@
 # App
 streamlit
-spotipy
+spotipy>=2.26
 requests
 python-dotenv
 
@@ -16,6 +16,6 @@ plotly
 
 # Development
 pytest
-black
-pylint
+black==26.10.1
+pylint==4.1.4
 pre-commit
