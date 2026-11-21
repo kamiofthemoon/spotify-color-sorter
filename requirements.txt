@@ -1,0 +1,21 @@
+# App
+streamlit
+spotipy
+requests
+python-dotenv
+
+# Image and color processing
+pillow
+numpy
+scikit-learn
+scikit-image
+colorthief
+
+# Charts
+plotly
+
+# Development
+pytest
+black
+pylint
+pre-commit

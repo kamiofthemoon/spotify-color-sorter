@@ -1,0 +1,18 @@
+# Secrets and tokens
+.env
+.cache
+
+# Virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+.pytest_cache/
+
+# Local database
+*.db
+
+# Editors and OS
+.vscode/
+.idea/
