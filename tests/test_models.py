@@ -2,7 +2,13 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from src.spotify.models import Playlist, Track, pick_image_url, parse_track
+from src.spotify.models import (
+    Playlist,
+    Track,
+    pick_image_url,
+    parse_track,
+    parse_playlist,
+)
 
 
 def make_track(**changes) -> Track:
@@ -135,3 +141,40 @@ def test_parse_track_keeps_track_without_is_playable():
     track = api_track()
     del track["is_playable"]
     assert parse_track({"track": track}) is not None
+
+
+# parse_playlist
+
+
+def api_playlist(**changes) -> dict:
+    """A playlist object shaped like the real API response."""
+    playlist = {
+        "id": "p1",
+        "name": "My playlist",
+        "owner": {"id": "me", "display_name": "Me"},
+        "collaborative": False,
+        "items": {"href": "https://api.spotify.com/v1/playlists/p1/items", "total": 10},
+        "images": [],
+        "snapshot_id": "snap1",
+    }
+    playlist.update(changes)
+    return playlist
+
+
+def test_parse_playlist():
+    assert parse_playlist(api_playlist()) == make_playlist()
+
+
+def test_parse_playlist_with_cover():
+    playlist = parse_playlist(api_playlist(images=SPOTIFY_IMAGES))
+    assert playlist.image_url == "medium"
+
+
+def test_parse_playlist_reads_old_tracks_field():
+    old = api_playlist(tracks={"total": 7})
+    del old["items"]
+    assert parse_playlist(old).track_count == 7
+
+
+def test_parse_playlist_skips_null():
+    assert parse_playlist(None) is None
