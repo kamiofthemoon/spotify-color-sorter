@@ -71,3 +71,19 @@ def parse_track(entry: dict | None) -> Track | None:
         album_name=album["name"],
         image_url=image_url,
     )
+
+
+def parse_playlist(item: dict | None) -> Playlist | None:
+    """Build a Playlist from an item of the user's playlist list; None if null."""
+    if not item:
+        return None
+    summary = item.get("items") or item.get("tracks") or {}  # "items" since 2026
+    return Playlist(
+        id=item["id"],
+        name=item["name"],
+        owner_id=item["owner"]["id"],
+        collaborative=item["collaborative"],
+        track_count=summary.get("total", 0),
+        image_url=pick_image_url(item.get("images")),
+        snapshot_id=item["snapshot_id"],
+    )
