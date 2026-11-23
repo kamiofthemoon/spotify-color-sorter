@@ -16,3 +16,6 @@ __pycache__/
 # Editors and OS
 .vscode/
 .idea/
+
+# Raw API samples (personal data)
+data/samples/
