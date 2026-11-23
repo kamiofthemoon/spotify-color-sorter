@@ -2,7 +2,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from src.spotify.models import Playlist, Track, pick_image_url
+from src.spotify.models import Playlist, Track, pick_image_url, parse_track
 
 
 def make_track(**changes) -> Track:
@@ -91,3 +91,47 @@ def test_pick_image_url_without_images():
 
 def test_pick_image_url_with_missing_width():
     assert pick_image_url([{"url": "mosaic", "width": None}]) == "mosaic"
+
+
+# parse_track
+
+
+def api_track(**changes) -> dict:
+    """A track object shaped like the real API response."""
+    track = {
+        "type": "track",
+        "id": "t1",
+        "uri": "spotify:track:t1",
+        "name": "Song",
+        "is_local": False,
+        "is_playable": True,
+        "artists": [{"name": "Artist A"}, {"name": "Artist B"}],
+        "album": {"id": "a1", "name": "Album", "images": SPOTIFY_IMAGES},
+    }
+    track.update(changes)
+    return track
+
+
+def test_parse_liked_songs_item():
+    track = parse_track({"added_at": "2026-01-01", "track": api_track()})
+    assert track == make_track(image_url="medium")
+
+
+def test_parse_playlist_item_uses_item_key():
+    track = parse_track({"added_at": "2026-01-01", "item": api_track()})
+    assert track.id == "t1"
+
+
+def test_parse_track_skips_unusable_items():
+    no_cover = {"id": "a1", "name": "Album", "images": []}
+    assert parse_track(None) is None
+    assert parse_track({"item": api_track(type="episode")}) is None
+    assert parse_track({"item": api_track(is_local=True)}) is None
+    assert parse_track({"item": api_track(is_playable=False)}) is None
+    assert parse_track({"item": api_track(album=no_cover)}) is None
+
+
+def test_parse_track_keeps_track_without_is_playable():
+    track = api_track()
+    del track["is_playable"]
+    assert parse_track({"track": track}) is not None
