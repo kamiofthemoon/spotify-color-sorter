@@ -41,3 +41,33 @@ def pick_image_url(images: list[dict] | None, size: int = COVER_SIZE) -> str | N
         return None
     best = min(images, key=lambda image: abs((image.get("width") or 0) - size))
     return best["url"]
+
+
+def parse_track(entry: dict | None) -> Track | None:
+    """Build a Track from a Liked Songs or playlist item; None if unusable.
+
+    Skips null items, podcast episodes, local files, unavailable tracks
+    and tracks without a cover.
+    """
+    if not entry:
+        return None
+    track = entry.get("item") or entry.get("track")  # playlists use "item" since 2026
+    if not track or track.get("type") != "track" or track.get("is_local"):
+        return None
+    if track.get("is_playable") is False:
+        return None
+
+    album = track.get("album") or {}
+    image_url = pick_image_url(album.get("images"))
+    if not image_url or not album.get("id"):
+        return None
+
+    return Track(
+        id=track["id"],
+        uri=track["uri"],
+        name=track["name"],
+        artists=tuple(artist["name"] for artist in track["artists"]),
+        album_id=album["id"],
+        album_name=album["name"],
+        image_url=image_url,
+    )
