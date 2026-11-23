@@ -4,6 +4,7 @@ target-version = ["py311"]
 
 [tool.pylint.main]
 py-version = "3.11"
+init-hook = "import sys; sys.path.insert(0, '.')"
 
 [tool.pylint.format]
 max-line-length = 88  # same as black
