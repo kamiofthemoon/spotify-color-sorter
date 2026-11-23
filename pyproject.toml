@@ -12,6 +12,9 @@ max-line-length = 88  # same as black
 [tool.pylint."messages control"]
 disable = ["missing-module-docstring"]
 
+[tool.pylint.basic]
+no-docstring-rgx = "^(_|test_)"
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
